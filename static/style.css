@@ -2,6 +2,8 @@
   --font-body: 'Roboto', Helvetica, Arial, sans-serif;
   --font-heading: 'Quicksand', Helvetica, Arial, sans-serif;
   --font-size-lg: 4rem;
+  --font-size-md: 3rem;
+  --font-size-sm: 2rem;
   --color-light: #fff;
   --color-dark: #464646;
 }
@@ -22,6 +24,14 @@ h3,
 h4 {
 	font-family: var(--font-heading);
 	margin: 1rem 0;
+}
+
+h2 {
+	font-size: var(--font-size-md);
+}
+
+h3 {
+	font-size: var(--font-size-sm);
 }
 
 a {
@@ -215,6 +225,7 @@ Nav
 	border-bottom: 1px solid #8e8e8e;
 	color: var(--color-dark);
 	display: block;
+	font-size: 1.6rem;
 	padding: 1.5rem 3rem;
 	text-decoration: none;
 }
