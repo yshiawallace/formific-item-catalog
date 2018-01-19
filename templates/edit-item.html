@@ -14,34 +14,40 @@
 
 			</div>
 
-				<form action="{{ url_for('editItem', item_id=item.id) }}" method="post">
-					<label for="name">Name:</label>
-					<input type="text" name="name" placeholder="{{item.name}}">
-					<br>
-					<label for="description">Description:</label>
-					<textarea type="text" name="description">{{item.description}}</textarea>
-					<br>
-					<label for="material">Material:</label>
-					<input type="text" name="material" placeholder="{{item.material}}">
-					<br>
-					<label for="year">Year:</label>
-					<input type="text" name="year" placeholder="{{item.year}}">
-					<br>
-					<label for="image_url">URL:</label>
-					<input type="text" name="image_url" placeholder="{{item.image_url}}">
-					<br>
+				<form class="form" action="{{ url_for('editItem', item_id=item.id) }}" method="post">
+					<div class="form__row">
+						<label class="label" for="name">Name:</label>
+						<input class="input" type="text" name="name" placeholder="{{item.name}}">
+					</div>
+					<div class="form__row">
+						<label class="label" for="description">Description:</label>
+						<textarea class="textarea" type="text" name="description">{{item.description}}</textarea>
+					</div>
+					<div class="form__row">
+						<label class="label" for="material">Material:</label>
+						<input class="input" type="text" name="material" placeholder="{{item.material}}">
+					</div>
+					<div class="form__row">
+						<label class="label" for="year">Year:</label>
+						<input class="input" type="text" name="year" placeholder="{{item.year}}">
+					</div>
+					<div class="form__row">
+						<label class="label" for="image_url">URL:</label>
+						<input class="input" type="text" name="image_url" placeholder="{{item.image_url}}">
+					</div>
 						
 					{% if item.medium.name == 'Video' or item.medium.name == 'video' %}
-
-					<label for="video_url">Video URL:</label>
-					<input type="text" name="video_url" placeholder="{{item.video_url}}">
-					<br>
-
+					
+					<div class="form__row">
+						<label class="label" for="video_url">Video URL:</label>
+						<input class="input" type="text" name="video_url" placeholder="{{item.video_url}}">
+					</div>
+						
 					{% endif %}
 
-					<input type="submit" name="submit" value="Update">
+					<input class="btn btn--secondary-reverse" type="submit" name="submit" value="Update">
+					<a class="btn btn--secondary-reverse" href="{{ url_for('showForms') }}">Cancel</a>
 				</form>
-				<a href="{{ url_for('showForms') }}">Cancel</a>
 
 		</div>
 
