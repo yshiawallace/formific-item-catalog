@@ -1,0 +1,17 @@
+<div class="sidebar">
+	<div class="identity">
+		<h1 class="identity__logo"><a href="{{ url_for('showForms') }}">Formific</a></h1>
+		<p class="identity__tagline">a collection of (hand)made things</p>	
+	</div>
+	<nav class="nav">
+
+		{% for medium in media %}
+
+		<div>
+			<a class="nav__item text-caps" href="{{ url_for('showItems', medium_name=medium.name) }}">{{medium.name}}</a>
+		</div>
+
+		{% endfor %}
+
+	</nav>
+</div>

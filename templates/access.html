@@ -1,0 +1,15 @@
+<div class="content__access">
+
+	{% if 'username' not in session %}
+	
+		<a class="btn btn--primary" href="{{ url_for('showLogin') }}">Login</a>
+
+	{% else %}
+
+		<a class="btn btn--primary" href="{{ url_for('newItem') }}">Add New Item</a>
+
+		<a class="btn btn--primary" href="{{ url_for('disconnect') }}">Logout</a>
+
+	{% endif %}	
+
+</div>

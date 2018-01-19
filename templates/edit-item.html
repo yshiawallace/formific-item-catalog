@@ -1,0 +1,50 @@
+{% extends "wrapper.html" %}
+{% block content %}
+	
+	<div class="container">
+		
+	{% include "sidebar.html" %}
+
+		<div class="content">
+
+			<div class="content__head grid">
+				<h2 class="content__title grid__cell">Edit item: "{{item.name}}"</h2>
+
+				{% include "access.html" %}
+
+			</div>
+
+				<form action="{{ url_for('editItem', item_id=item.id) }}" method="post">
+					<label for="name">Name:</label>
+					<input type="text" name="name" placeholder="{{item.name}}">
+					<br>
+					<label for="description">Description:</label>
+					<textarea type="text" name="description">{{item.description}}</textarea>
+					<br>
+					<label for="material">Material:</label>
+					<input type="text" name="material" placeholder="{{item.material}}">
+					<br>
+					<label for="year">Year:</label>
+					<input type="text" name="year" placeholder="{{item.year}}">
+					<br>
+					<label for="image_url">URL:</label>
+					<input type="text" name="image_url" placeholder="{{item.image_url}}">
+					<br>
+						
+					{% if item.medium.name == 'Video' or item.medium.name == 'video' %}
+
+					<label for="video_url">Video URL:</label>
+					<input type="text" name="video_url" placeholder="{{item.video_url}}">
+					<br>
+
+					{% endif %}
+
+					<input type="submit" name="submit" value="Update">
+				</form>
+				<a href="{{ url_for('showForms') }}">Cancel</a>
+
+		</div>
+
+	</div>
+
+{% endblock %}
