@@ -226,11 +226,44 @@ Nav
 /*---------------------------------------------
 Forms
 ----------------------------------------------*/
+input.btn {
+	font-family: var(--font-body);
+	font-size: inherit;
+	cursor: pointer;
+}
+
+.form {
+	max-width: 50rem;
+}
+
+.form__row {
+	align-items: center;
+	display: flex;
+	margin: 0 0 2rem 0;	
+}
+
+.form__row .label {
+	width: 12rem;
+}
+
+.form__row .input,
+.form__row .textarea,
+.form__row .select {
+	flex: 1 1 auto;
+}
 
 .input,
-.textarea {
-	padding: 0.8rem;
+.textarea,
+.select {
     border-radius: 0.5rem;
     border: 1px solid #ccc;
+    font-size: inherit;
+	padding: 0.8rem;	
 }
+
+.select {
+	background-color: var(--color-light);
+    height: 3rem;
+}
+
 

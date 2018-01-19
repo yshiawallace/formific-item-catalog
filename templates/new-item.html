@@ -14,70 +14,42 @@
 
 			</div>
 
-			<form action="{{ url_for('newItem') }}" method="post">
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="name">Name:</label>
-					</div>
-					<div class="grid__cell">
-						<input class="input" type="text" name="name">
-					</div>
+			<form class="form" action="{{ url_for('newItem') }}" method="post">
+				<div class="form__row">
+					<label class="label" for="name">Name:</label>
+					<input class="input" type="text" name="name">
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="description">Description:</label>
-					</div>
-					<div class="grid__cell">
-						<textarea class="textarea" type="text" name="description"></textarea>
-					</div>
+				<div class="form__row">
+					<label class="label" for="description">Description:</label>
+					<textarea class="textarea" type="text" name="description"></textarea>
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="material">Material:</label>
-					</div>
-					<div class="grid__cell">
-						<input class="input" type="text" name="material">
-					</div>
+				<div class="form__row">
+					<label class="label" for="material">Material:</label>
+					<input class="input" type="text" name="material">
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="year">Year:</label>
-					</div>
-					<div class="grid__cell">
-						<input class="input" type="text" name="year">
-					</div>
+				<div class="form__row">
+					<label class="label" for="year">Year:</label>
+					<input class="input" type="text" name="year">
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="image_url">Image URL:</label>
-					</div>
-					<div class="grid__cell">
-						<input class="input" type="text" name="image_url">
-					</div>
+				<div class="form__row">
+					<label class="label" for="image_url">Image URL:</label>
+					<input class="input" type="text" name="image_url">
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="video_url">Video URL:</label>
-					</div>
-					<div class="grid__cell">
-						<input class="input" type="text" name="video_url">
-					</div>
+				<div class="form__row">
+					<label class="label" for="video_url">Video URL:</label>
+					<input class="input" type="text" name="video_url">
 				</div>
-				<div class="grid">
-					<div class="grid__cell">
-						<label class="label" for="medium">Medium:</label>
-					</div>
-					<div class="grid__cell">
-						<select name="medium">
+				<div class="form__row">
+					<label class="label" for="medium">Medium:</label>
+					<select class="select" name="medium">
 
-							{% for medium in media %}
+						{% for medium in media %}
 
-							<option value="{{medium.id}}">{{medium.name}}</option>
+						<option value="{{medium.id}}">{{medium.name}}</option>
 
-							{% endfor %}
+						{% endfor %}
 
-						</select>
-					</div>
+					</select>
 				</div>
 				<input class="btn btn--secondary-reverse" type="submit" name="submit" value="Create">
 			</form>
