@@ -98,7 +98,9 @@ Page Template
 
 @media screen and (max-width: 1024px) {
 	.content {
-		padding: 3rem
+		padding: 3rem;
+		width: 100%;
+		margin-left: 0;
 	}
 }
 
@@ -250,13 +252,6 @@ Nav
 	-moz-transform: rotate(-45deg);
 	-o-transform: rotate(-45deg);
 	transform: rotate(-45deg);
-}
-
-@media screen and (max-width: 1024px) {
-	.content {
-		width: 100%;
-		margin-left: 0;
-	}
 }
 
 @media screen and (min-width: 1024px) {
