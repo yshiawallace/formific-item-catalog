@@ -34,6 +34,10 @@ h3 {
 	font-size: var(--font-size-sm);
 }
 
+p {
+	line-height: 2rem;
+}
+
 a {
 	color: var(--color-dark);
 	text-decoration: none;
