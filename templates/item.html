@@ -31,10 +31,12 @@
 						<img src="{{item.image_url}}" width="450">
 					</div>
 					<div class="grid__cell">
-						<h3>{{item.name}}</h3>
-						<p>{{item.description}}</p>
-						<a class="btn btn--secondary-reverse" href="{{ url_for('editItem', medium_name=item.medium.name, item_id=item.id) }}">Edit</a>
-						<a class="btn btn--secondary-reverse" href="{{ url_for('deleteItem', medium_name=item.medium.name, item_id=item.id) }}">Delete</a>
+						<div class="item__container">
+							<h3>{{item.name}}</h3>
+							<p>{{item.description}}</p>
+							<a class="btn btn--secondary-reverse" href="{{ url_for('editItem', medium_name=item.medium.name, item_id=item.id) }}">Edit</a>
+							<a class="btn btn--secondary-reverse" href="{{ url_for('deleteItem', medium_name=item.medium.name, item_id=item.id) }}">Delete</a>
+						</div>	
 					</div>
 				</div>
 

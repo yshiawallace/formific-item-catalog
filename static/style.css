@@ -420,4 +420,16 @@ input.btn {
     height: 3rem;
 }
 
+/*---------------------------------------------
+Items
+----------------------------------------------*/
 
+.item__container {
+	margin-left: 2rem;
+}
+
+@media screen and (min-width: 1340px) {
+	.item__container {
+		margin-left: 0;
+	}
+}
