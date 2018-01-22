@@ -280,10 +280,7 @@ def showAllItems():
 def showForms():
     formList = session.query(Medium).all()
     recentItems = session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
-    if 'username' not in login_session:
-        return render_template('public-formific.html', media=formList, items=recentItems)
-    else:    
-        return render_template('formific.html', media=formList, items=recentItems) 
+    return render_template('formific.html', media=formList, items=recentItems) 
 
 # Show all items in a category                
 @app.route('/formific/medium/<medium_name>/')
@@ -291,11 +288,8 @@ def showForms():
 def showItems(medium_name):
     formList = session.query(Medium).all()
     medium = session.query(Medium).filter_by(name=medium_name).first()
-    items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
-    if 'username' not in login_session:
-        return render_template('public-items.html', medium=medium, items=items, media=formList)
-    else:    
-        return render_template('items.html', medium=medium, items=items, media=formList)
+    items = session.query(ArtItem).filter_by(medium_id=medium.id).all()   
+    return render_template('items.html', medium=medium, items=items, media=formList)
 
 @app.route('/formific/medium/<medium_name>/item/<int:item_id>')
 def showItem(medium_name, item_id):
