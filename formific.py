@@ -6,12 +6,11 @@ import requests
 from flask import (
     Flask, render_template, request, redirect, url_for, flash, jsonify
     )
+from flask import session as login_session
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from models import Base, Medium, ArtItem, User
-from flask import session as login_session
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.client import FlowExchangeError
+from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 
 from flask import make_response
 
@@ -34,7 +33,6 @@ def showLogin():
                     for x in xrange(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
-    # return "The current session state is: {}".format(login_session['state'])
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -134,7 +132,7 @@ def gconnect():
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets(
-                'catalog/client_secrets.json', scope=''
+            'catalog/client_secrets.json', scope=''
             )
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
@@ -175,9 +173,11 @@ def gconnect():
     stored_gplus_id = login_session.get('gplus_id')
 
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps(
-                'Current user is already connected.'), 200
-            )
+        response = (
+            make_response(json.dumps(
+                'Current user is already connected.'
+                ), 200)
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -191,8 +191,6 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
-    print "This is the User data line 184:"
-    print data
 
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
@@ -216,10 +214,9 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += (
-            ' " style = "width: 300px; height: 300px;border-radius: 150px; '
-            '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+        ' " style = "width: 300px; height: 300px;border-radius: 150px; '
+        '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
         )
-    flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
@@ -230,38 +227,39 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps(
-                'Current user not connected.'), 401
-            )
+        response = (
+            make_response(json.dumps(
+                'Current user not connected.'), 401)
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s' % access_token
     print 'User name is: '
     print login_session['username']
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']  # noqa
-    print url
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    print 'result is '
-    print result['status']
     if result['status'] == '200':
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
         print "result is not 200"
-        response = make_response(json.dumps(
-                    'Failed to revoke token for given user.', 400
-                ))
+        response = (
+            make_response(json.dumps(
+                    'Failed to revoke token for given user.', 400)
+            ))
         response.headers['Content-Type'] = 'application/json'
-        print response
         return response
 
 
 # User Helper Functions
 def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session[
-                   'email'], picture=login_session['picture'])
+    newUser = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture']
+    )
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -286,7 +284,6 @@ def getUserID(email):
 def showMediumItems(medium_name):
     medium = session.query(Medium).filter_by(name=medium_name).one()
     items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
-    print medium
     return jsonify(mediumItems=[i.serialize for i in items])
 
 
@@ -305,11 +302,11 @@ def showForms():
             session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
         )
     return render_template(
-            'formific.html',
-            media=formList,
-            items=recentItems,
-            userinfo=login_session
-        )
+        'formific.html',
+        media=formList,
+        items=recentItems,
+        userinfo=login_session
+    )
 
 
 # Show all items in a category
@@ -320,12 +317,12 @@ def showItems(medium_name):
     medium = session.query(Medium).filter_by(name=medium_name).first()
     items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
     return render_template(
-            'items.html',
-            medium=medium,
-            items=items,
-            media=formList,
-            userinfo=login_session
-        )
+        'items.html',
+        medium=medium,
+        items=items,
+        media=formList,
+        userinfo=login_session
+    )
 
 
 @app.route('/formific/medium/<medium_name>/item/<int:item_id>')
@@ -335,18 +332,18 @@ def showItem(medium_name, item_id):
     if ('username' not in login_session or
             item.user_id != login_session['user_id']):
         return render_template(
-                'public-item.html',
-                item=item,
-                media=formList,
-                userinfo=login_session
-            )
+            'public-item.html',
+            item=item,
+            media=formList,
+            userinfo=login_session
+        )
     else:
         return render_template(
-                'item.html',
-                item=item,
-                media=formList,
-                userinfo=login_session
-            )
+            'item.html',
+            item=item,
+            media=formList,
+            userinfo=login_session
+        )
 
 
 @app.route('/formific/item/new', methods=['GET', 'POST'])
@@ -354,7 +351,6 @@ def newItem():
     formList = session.query(Medium).all()
     if 'username' not in login_session:
         return redirect('/login')
-    print formList
     if request.method == 'POST':
         newItem = ArtItem(
             name=request.form['name'],
@@ -371,10 +367,10 @@ def newItem():
         return redirect(url_for('showForms'))
     else:
         return render_template(
-                'new-item.html',
-                media=formList,
-                userinfo=login_session
-            )
+            'new-item.html',
+            media=formList,
+            userinfo=login_session
+        )
 
 
 @app.route('/formific/item/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -401,11 +397,11 @@ def editItem(item_id):
         return redirect(url_for('showForms'))
     else:
         return render_template(
-                'edit-item.html',
-                item=editedItem,
-                media=formList,
-                userinfo=login_session
-            )
+            'edit-item.html',
+            item=editedItem,
+            media=formList,
+            userinfo=login_session
+        )
 
 
 @app.route('/formific/item/<int:item_id>/delete', methods=['GET', 'POST'])
@@ -420,18 +416,16 @@ def deleteItem(item_id):
         return redirect(url_for('showForms'))
     else:
         return render_template(
-                'delete-item.html',
-                item=item,
-                media=formList,
-                userinfo=login_session
-            )
+            'delete-item.html',
+            item=item,
+            media=formList,
+            userinfo=login_session
+        )
 
 
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
-    print "Username is:"
-    print login_session['provider']
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
