@@ -1,16 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort, g
+import random
+import string
+import json
+import httplib2
+import requests
+from flask import (
+    Flask, render_template, request, redirect, url_for, flash, jsonify
+    )
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from models import Base, Medium, ArtItem, User
 from flask import session as login_session
-import random, string
-
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-import httplib2
-import json
+
 from flask import make_response
-import requests
 
 app = Flask(__name__)
 
@@ -24,6 +27,7 @@ CLIENT_ID = json.loads(
     open('catalog/client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Formific Item Catalog"
 
+
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -31,6 +35,7 @@ def showLogin():
     login_session['state'] = state
     return render_template('login.html', STATE=state)
     # return "The current session state is: {}".format(login_session['state'])
+
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -41,29 +46,29 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-
     app_id = json.loads(open('catalog/fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('catalog/fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
+        open('catalog/fb_client_secrets.json', 'r').read()
+        )['web']['app_secret']
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (  # noqa
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
-
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
     '''
-      Due to the formatting for the result from the server token exchange we have to
-      split the token first on commas and select the first index which gives us the key : value
-      for the server access token then we split it on colons to pull out the actual token value
-      and replace the remaining quotes with nothing so that it can be used directly in the graph
+      Due to the formatting for the result from the server token exchange we
+      have to split the token first on commas and select the first index which
+      gives us the key : value for the server access token then we split it
+      on colons to pull out the actual token value and replace the remaining
+      quotes with nothing so that it can be used directly in the graph
       api calls
     '''
     token = result.split(',')[0].split(':')[1].replace('"', '')
 
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
@@ -78,7 +83,7 @@ def fbconnect():
     login_session['access_token'] = token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -88,7 +93,7 @@ def fbconnect():
     # see if user exists
     user_id = getUserID(login_session['email'])
     if not user_id:
-      user_id = createUser(login_session)
+        user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
     output = ''
@@ -98,7 +103,10 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += '''
+        " style = "width: 300px; height: 300px;border-radius: 150px;
+            -webkit-border-radius: 150px;-moz-border-radius: 150px;">
+            '''
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -109,7 +117,7 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)  # noqa
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -125,7 +133,9 @@ def gconnect():
     code = request.data
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('catalog/client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets(
+                'catalog/client_secrets.json', scope=''
+            )
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -135,11 +145,10 @@ def gconnect():
         return response
     # Check that the access token is valid.
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
-             % access_token)
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)  # noqa
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-    
+
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
@@ -156,18 +165,19 @@ def gconnect():
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
-          response = make_response(
-              json.dumps("Token's client ID does not match app's."), 401)
-          print "Token's client ID does not match app's."
-          response.headers['Content-Type'] = 'application/json'
-          return response
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        print "Token's client ID does not match app's."
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
-    
+
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+                'Current user is already connected.'), 200
+            )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -190,7 +200,7 @@ def gconnect():
     login_session['provider'] = 'google'
 
     print "Username is:"
-    print login_session['username'] 
+    print login_session['username']
 
     # check if user exists, if not, create a new user in the database
     userId = getUserID(login_session['email'])
@@ -205,10 +215,14 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += (
+            ' " style = "width: 300px; height: 300px;border-radius: 150px; '
+            '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+        )
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
 
 # Disconnect
 @app.route('/gdisconnect')
@@ -216,13 +230,15 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps(
+                'Current user not connected.'), 401
+            )
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s' % access_token
     print 'User name is: '
     print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']  # noqa
     print url
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -234,10 +250,13 @@ def gdisconnect():
         return response
     else:
         print "result is not 200"
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(
+                    'Failed to revoke token for given user.', 400
+                ))
         response.headers['Content-Type'] = 'application/json'
         print response
-        return response                 
+        return response
+
 
 # User Helper Functions
 def createUser(login_session):
@@ -270,6 +289,7 @@ def showMediumItems(medium_name):
     print medium
     return jsonify(mediumItems=[i.serialize for i in items])
 
+
 @app.route('/formific/items/JSON')
 def showAllItems():
     items = session.query(ArtItem).all()
@@ -281,30 +301,57 @@ def showAllItems():
 @app.route('/formific', methods=['GET'])
 def showForms():
     formList = session.query(Medium).all()
-    recentItems = session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
-    return render_template('formific.html', media=formList, items=recentItems, userinfo=login_session) 
+    recentItems = (
+            session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
+        )
+    return render_template(
+            'formific.html',
+            media=formList,
+            items=recentItems,
+            userinfo=login_session
+        )
 
-# Show all items in a category                
+
+# Show all items in a category
 @app.route('/formific/medium/<medium_name>/')
 @app.route('/formific/medium/<medium_name>/item')
 def showItems(medium_name):
     formList = session.query(Medium).all()
     medium = session.query(Medium).filter_by(name=medium_name).first()
-    items = session.query(ArtItem).filter_by(medium_id=medium.id).all()   
-    return render_template('items.html', medium=medium, items=items, media=formList, userinfo=login_session)
+    items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
+    return render_template(
+            'items.html',
+            medium=medium,
+            items=items,
+            media=formList,
+            userinfo=login_session
+        )
+
 
 @app.route('/formific/medium/<medium_name>/item/<int:item_id>')
 def showItem(medium_name, item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
-    if 'username' not in login_session or item.user_id != login_session['user_id']:
-        return render_template('public-item.html', item=item, media=formList, userinfo=login_session)   
-    else:    
-        return render_template('item.html', item=item, media=formList, userinfo=login_session)
+    if ('username' not in login_session or
+            item.user_id != login_session['user_id']):
+        return render_template(
+                'public-item.html',
+                item=item,
+                media=formList,
+                userinfo=login_session
+            )
+    else:
+        return render_template(
+                'item.html',
+                item=item,
+                media=formList,
+                userinfo=login_session
+            )
+
 
 @app.route('/formific/item/new', methods=['GET', 'POST'])
 def newItem():
-    formList = session.query(Medium).all()    
+    formList = session.query(Medium).all()
     if 'username' not in login_session:
         return redirect('/login')
     print formList
@@ -323,7 +370,12 @@ def newItem():
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('new-item.html', media=formList, userinfo=login_session)
+        return render_template(
+                'new-item.html',
+                media=formList,
+                userinfo=login_session
+            )
+
 
 @app.route('/formific/item/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(item_id):
@@ -348,7 +400,13 @@ def editItem(item_id):
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('edit-item.html', item=editedItem, media=formList, userinfo=login_session) 
+        return render_template(
+                'edit-item.html',
+                item=editedItem,
+                media=formList,
+                userinfo=login_session
+            )
+
 
 @app.route('/formific/item/<int:item_id>/delete', methods=['GET', 'POST'])
 def deleteItem(item_id):
@@ -361,7 +419,13 @@ def deleteItem(item_id):
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('delete-item.html', item=item, media=formList, userinfo=login_session)               
+        return render_template(
+                'delete-item.html',
+                item=item,
+                media=formList,
+                userinfo=login_session
+            )
+
 
 # Disconnect based on provider
 @app.route('/disconnect')
