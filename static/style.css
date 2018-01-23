@@ -112,6 +112,16 @@ Page Template
 	height: 7.5rem;
 }
 
+.content__access .userinfo {
+	display: inline-block;
+}
+
+.content__access .userinfo__img {
+	width: 4.4rem;
+	margin-bottom: -1.6rem;
+	border-radius: 50%;
+}
+
 /*
 * Mobile Page Template Styles
 **/
@@ -437,3 +447,4 @@ Items
 		margin-left: 0;
 	}
 }
+

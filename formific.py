@@ -280,7 +280,7 @@ def showAllItems():
 def showForms():
     formList = session.query(Medium).all()
     recentItems = session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
-    return render_template('formific.html', media=formList, items=recentItems) 
+    return render_template('formific.html', media=formList, items=recentItems, userinfo=login_session) 
 
 # Show all items in a category                
 @app.route('/formific/medium/<medium_name>/')
@@ -289,16 +289,16 @@ def showItems(medium_name):
     formList = session.query(Medium).all()
     medium = session.query(Medium).filter_by(name=medium_name).first()
     items = session.query(ArtItem).filter_by(medium_id=medium.id).all()   
-    return render_template('items.html', medium=medium, items=items, media=formList)
+    return render_template('items.html', medium=medium, items=items, media=formList, userinfo=login_session)
 
 @app.route('/formific/medium/<medium_name>/item/<int:item_id>')
 def showItem(medium_name, item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
     if 'username' not in login_session:
-        return render_template('public-item.html', item=item, media=formList)
+        return render_template('public-item.html', item=item, media=formList, userinfo=login_session)
     else:    
-        return render_template('item.html', item=item, media=formList)
+        return render_template('item.html', item=item, media=formList, userinfo=login_session)
 
 @app.route('/formific/item/new', methods=['GET', 'POST'])
 def newItem():
@@ -321,7 +321,7 @@ def newItem():
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('new-item.html', media=formList)
+        return render_template('new-item.html', media=formList, userinfo=login_session)
 
 @app.route('/formific/item/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(item_id):
@@ -346,7 +346,7 @@ def editItem(item_id):
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('edit-item.html', item=editedItem, media=formList) 
+        return render_template('edit-item.html', item=editedItem, media=formList, userinfo=login_session) 
 
 @app.route('/formific/item/<int:item_id>/delete', methods=['GET', 'POST'])
 def deleteItem(item_id):
@@ -359,7 +359,7 @@ def deleteItem(item_id):
         session.commit()
         return redirect(url_for('showForms'))
     else:
-        return render_template('delete-item.html', item=item, media=formList)               
+        return render_template('delete-item.html', item=item, media=formList, userinfo=login_session)               
 
 # Disconnect based on provider
 @app.route('/disconnect')
