@@ -17,6 +17,18 @@ This is the fourth project that I have completed for the [Udacity Full Stack Web
 9. Now go to [http://localhost:8000/formific](http://localhost:8000/formific) to see the app in action.
 10. Login with either your Google of FaceBook credentials to add your own items to the catalog.
 
+## JSON Endpoints
+Once you have the app up and running on you local machine, you can access the API here:
+```
+http://localhost:8000/formific/medium/<medium_name>/JSON
+```
+
+or 
+
+```
+http://localhost:8000/formific/items/JSON
+```
+
 ## License
 
 MIT License
