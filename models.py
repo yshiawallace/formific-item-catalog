@@ -42,7 +42,8 @@ class ArtItem(Base):
             'name': self.name,
             'description': self.description,
             'material': self.material,
-            'url': self.url,
+            'image url': self.image_url,
+            'video url': self.video_url,
             'year': self.year,
             'medium_id': self.medium.id
         }
