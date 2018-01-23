@@ -34,6 +34,13 @@
 						<div class="item__container">
 							<h3>{{item.name}}</h3>
 							<p>{{item.description}}</p>
+
+							{% if item.medium.name == 'Video' %}
+							
+							<a class="btn btn--primary" href="{{item.video_url}}" target="_blank">Watch video</a>
+
+							{% endif %}
+
 						</div>	
 					</div>
 				</div>
