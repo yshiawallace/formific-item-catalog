@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, Medium, ArtItem
 
-engine = create_engine('sqlite:///catalog/formific.db')
+engine = create_engine('sqlite:///formific.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

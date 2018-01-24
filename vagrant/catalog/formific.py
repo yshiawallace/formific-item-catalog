@@ -18,7 +18,7 @@ from flask import make_response
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///catalog/formific.db')
+engine = create_engine('sqlite:///formific.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

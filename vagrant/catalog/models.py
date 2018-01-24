@@ -49,7 +49,7 @@ class ArtItem(Base):
         }
 
 
-engine = create_engine('sqlite:///catalog/formific.db')
+engine = create_engine('sqlite:///formific.db')
 
 
 Base.metadata.create_all(engine)
