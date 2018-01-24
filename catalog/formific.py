@@ -1,18 +1,20 @@
-import random
-import string
-import json
-import httplib2
-import requests
 from flask import (
     Flask, render_template, request, redirect, url_for, flash, jsonify
     )
-from flask import session as login_session
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from models import Base, Medium, ArtItem, User
-from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
+from flask import session as login_session
+import random
+import string
 
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+import json
+import httplib2
+import requests
 from flask import make_response
+
 
 app = Flask(__name__)
 
