@@ -19,7 +19,7 @@ This is the fourth project that I have completed for the [Udacity Full Stack Web
 9. To populate the app with some starter database items run `python starter_items.py`.
 10. Then launch the app with `python formific.py`.
 11. Now go to [http://localhost:8000/formific](http://localhost:8000/formific) to see the app in action.
-12. Login with either your Google of FaceBook credentials to add your own items to the catalog.
+12. Login with either your Google or FaceBook credentials to add your own items to the catalog.
 
 ## JSON Endpoints
 Once you have the app up and running on you local machine, you can access the API here:

@@ -378,9 +378,12 @@ def newItem():
 @app.route('/formific/item/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(item_id):
     formList = session.query(Medium).all()
+    editedItem = session.query(ArtItem).filter_by(id=item_id).one()
     if 'username' not in login_session:
         return redirect('/login')
-    editedItem = session.query(ArtItem).filter_by(id=item_id).one()
+    if editedItem.user_id != login_session['user_id']:
+        flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
+        return redirect(url_for('showItem', medium_name=editedItem.medium.name, item_id=editedItem.id))
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
