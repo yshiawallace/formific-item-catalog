@@ -23,25 +23,25 @@
 
 			</div>
 
-			<div class="alert-box">
+			<div class="content">
 
-			{% with messages = get_flashed_messages() %}
+				<div class="alert-box">
 
-				{% if messages %}
+				{% with messages = get_flashed_messages() %}
 
-				{% for message in messages %}
+					{% if messages %}
 
-				<div class="alert-box__msg">{{ message }} <span class="alert-box__close"></span></div>
+					{% for message in messages %}
 
-				{% endfor %}
+					<div class="alert-box__msg show">{{ message }} <span class="alert-box__close">×</span></div>
 
-				{% endif %}
+					{% endfor %}
 
-			{% endwith %}
+					{% endif %}
 
-			</div>
+				{% endwith %}
 
-			<div class="content">		
+				</div>	
 
 			{% block content %}
 
