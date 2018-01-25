@@ -9,33 +9,50 @@
 <body>
 	<div class="page">
 
-		<div class="alert">
+		<div class="container">
+		
+			<div class="sidebar">
+
+				{% include "header.html" %}
+
+			</div>
+
+			<div class="header__mobile">
+				
+				{% include "header.html" %}
+
+			</div>
+
+			<div class="alert-box">
 
 			{% with messages = get_flashed_messages() %}
 
 				{% if messages %}
 
-				<ul>
-
 				{% for message in messages %}
 
-					<li class="alert__message"> <strong> {{ message }} </strong> </li>
+				<div class="alert-box__msg">{{ message }} <span class="alert-box__close"></span></div>
 
 				{% endfor %}
-
-				</ul>
 
 				{% endif %}
 
 			{% endwith %}
 
+			</div>
+
+			<div class="content">		
+
+			{% block content %}
+
+			{% endblock %}
+			
+			</div>	
+
 		</div>
 
-		{% block content %}
-
-		{% endblock %}
-
 	</div>
+
 	<script type="text/javascript" src="{{ url_for('static', filename='formific.js') }}"></script>
 </body>
 </html>
