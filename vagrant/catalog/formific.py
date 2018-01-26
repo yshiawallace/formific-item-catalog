@@ -1,5 +1,6 @@
 from flask import (
-    Flask, render_template, request, redirect, url_for, flash, jsonify
+    Flask, render_template, request, redirect, url_for,
+    flash, jsonify, abort
     )
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
@@ -14,6 +15,7 @@ import json
 import httplib2
 import requests
 from flask import make_response
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -27,6 +29,64 @@ session = DBSession()
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Formific Item Catalog"
+
+
+def login_required(func):
+    """ Check if user is logged in.
+
+    This decorator verfies whether a user is logged in before
+    allowing access to the requested resource. If they are
+    not logged in, they are redirected to the login page.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'username' not in login_session:
+            return redirect('/login')
+        else:
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def item_modification_authentication(func):
+    """ Check if user is owner of an item.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        item_id = kwargs['item_id']
+        item = session.query(ArtItem).filter_by(id=item_id).one_or_none()
+        if item.user_id != login_session['user_id']:
+            flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
+            return redirect(url_for('showItem', medium_name=item.medium.name, item_id=item.id))
+        else:
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def category_exists(func):
+    """ Check if a category exists.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        category = session.query(Medium).filter_by(name=kwargs['medium_name']).one_or_none()
+        if not category:
+            return abort(404)
+        else:
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def item_exists(func):
+    """ Check if a item exists.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print kwargs
+        item = session.query(ArtItem).filter_by(id=kwargs['item_id']).one_or_none()
+        if not item:
+            return abort(404)
+        else:
+            return func(*args, **kwargs)
+    return wrapper    
 
 
 @app.route('/login')
@@ -314,6 +374,7 @@ def showForms():
 # Show all items in a category
 @app.route('/formific/medium/<medium_name>/')
 @app.route('/formific/medium/<medium_name>/item')
+@category_exists
 def showItems(medium_name):
     formList = session.query(Medium).all()
     medium = session.query(Medium).filter_by(name=medium_name).first()
@@ -328,6 +389,8 @@ def showItems(medium_name):
 
 
 @app.route('/formific/medium/<medium_name>/item/<int:item_id>')
+@category_exists
+@item_exists
 def showItem(medium_name, item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
@@ -349,10 +412,9 @@ def showItem(medium_name, item_id):
 
 
 @app.route('/formific/item/new', methods=['GET', 'POST'])
+@login_required
 def newItem():
     formList = session.query(Medium).all()
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         newItem = ArtItem(
             name=request.form['name'],
@@ -376,14 +438,15 @@ def newItem():
 
 
 @app.route('/formific/item/<int:item_id>/edit', methods=['GET', 'POST'])
+@item_exists
+@login_required
+@item_modification_authentication
 def editItem(item_id):
     formList = session.query(Medium).all()
     editedItem = session.query(ArtItem).filter_by(id=item_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
-    if editedItem.user_id != login_session['user_id']:
-        flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
-        return redirect(url_for('showItem', medium_name=editedItem.medium.name, item_id=editedItem.id))
+    # if editedItem.user_id != login_session['user_id']:
+    #     flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
+    #     return redirect(url_for('showItem', medium_name=editedItem.medium.name, item_id=editedItem.id))
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -410,11 +473,12 @@ def editItem(item_id):
 
 
 @app.route('/formific/item/<int:item_id>/delete', methods=['GET', 'POST'])
+@item_exists
+@login_required
+@item_modification_authentication
 def deleteItem(item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if item.user_id != login_session['user_id']:
         flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
         return redirect(url_for('showItem', medium_name=item.medium.name, item_id=item.id))    
