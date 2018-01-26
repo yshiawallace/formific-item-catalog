@@ -102,26 +102,27 @@ def item_exists(func):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    """Return 404 page when content is not found"""
+    """Returns a 404 page when content is not found"""
     media = session.query(Medium).all()
     return render_template('404.html', media=media), 404
 
 
 @app.errorhandler(401)
 def unauthorized(e):
-    """Return 401 page user credentials fail"""
+    """Returns a 401 page if the user credentials fail"""
     media = session.query(Medium).all()
     return render_template('401.html', media=media), 401
 
 
 @app.errorhandler(500)
 def server_error(e):
-    """Return 500 page when server fails"""
+    """Returns a 500 page when the server fails"""
     return render_template('500.html'), 500
 
 
 @app.route('/login')
 def showLogin():
+    """Render a login page and generate a state token"""
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -130,6 +131,9 @@ def showLogin():
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    """Handles login with FaceBook credentials and populates
+    login session variable.
+    """
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -202,8 +206,9 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+    """Revoke FaceBook user token"""
     facebook_id = login_session['facebook_id']
-    # The access token must me included to successfully logout
+    # The access token must be included to successfully logout
     access_token = login_session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)  # noqa
     h = httplib2.Http()
@@ -213,6 +218,9 @@ def fbdisconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """Gathers data from Google Sign In API and places it
+    inside the login session variable.
+    """
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -305,9 +313,9 @@ def gconnect():
     return output
 
 
-# Disconnect
 @app.route('/gdisconnect')
 def gdisconnect():
+    """Revokes user token for Google login"""
     access_token = login_session.get('access_token')
     if access_token is None:
         response = (
@@ -334,6 +342,7 @@ def gdisconnect():
 
 # User Helper Functions
 def createUser(login_session):
+    """Creates new user with login session data"""
     newUser = User(
         name=login_session['username'],
         email=login_session['email'],
@@ -346,11 +355,13 @@ def createUser(login_session):
 
 
 def getUserInfo(user_id):
+    """Gets user info by querying the user database with the user id"""
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def getUserID(email):
+    """Gets user ID by querying the user databse with the user email"""
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -360,7 +371,9 @@ def getUserID(email):
 
 # JSON APIs to view item information
 @app.route('/formific/medium/<medium_name>/JSON')
+@category_exists
 def showMediumItems(medium_name):
+    """JSON endpoint to display all items in a specific category"""
     medium = session.query(Medium).filter_by(name=medium_name).one()
     items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
     return jsonify(mediumItems=[i.serialize for i in items])
@@ -368,6 +381,7 @@ def showMediumItems(medium_name):
 
 @app.route('/formific/items/JSON')
 def showAllItems():
+    """JSON endpoint to display all items in the database"""
     items = session.query(ArtItem).all()
     return jsonify(items=[i.serialize for i in items])
 
@@ -376,6 +390,7 @@ def showAllItems():
 @app.route('/', methods=['GET'])
 @app.route('/formific', methods=['GET'])
 def showForms():
+    """Renders the main page populated with all items and categories"""
     formList = session.query(Medium).all()
     recentItems = (
             session.query(ArtItem).order_by(ArtItem.id.desc()).limit(12).all()
@@ -393,6 +408,7 @@ def showForms():
 @app.route('/formific/medium/<medium_name>/item')
 @category_exists
 def showItems(medium_name):
+    """Renders a page that displays all items within a specific category"""
     formList = session.query(Medium).all()
     medium = session.query(Medium).filter_by(name=medium_name).first()
     items = session.query(ArtItem).filter_by(medium_id=medium.id).all()
@@ -409,6 +425,7 @@ def showItems(medium_name):
 @category_exists
 @item_exists
 def showItem(medium_name, item_id):
+    """Renders a page that displays a specific item in a category"""
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
     return render_template(
@@ -422,6 +439,11 @@ def showItem(medium_name, item_id):
 @app.route('/formific/item/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
+    """Render a page that displays an HTML form to create a new item
+
+    Renders a page with an HTML form. When the form is submitted a
+    new item is created in the database with the form values submitted.
+    """
     formList = session.query(Medium).all()
     if request.method == 'POST':
         newItem = ArtItem(
@@ -450,6 +472,11 @@ def newItem():
 @login_required
 @item_modification_authentication
 def editItem(item_id):
+    """Render a page that displays an HTML form to edit an item
+
+    Renders a page with an HTML form that allows the owner of the
+    item to edit and update the item details.
+    """
     formList = session.query(Medium).all()
     editedItem = session.query(ArtItem).filter_by(id=item_id).one()
     if request.method == 'POST':
@@ -482,6 +509,11 @@ def editItem(item_id):
 @login_required
 @item_modification_authentication
 def deleteItem(item_id):
+    """Render a page that displays an HTML input to delete an item
+
+    Renders a page with an HTML input that allows the owner of the
+    item to delete it.
+    """
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
     if item.user_id != login_session['user_id']:
@@ -500,9 +532,9 @@ def deleteItem(item_id):
         )
 
 
-# Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
+    """Clear the login session variable for either Google or FaceBook"""
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
