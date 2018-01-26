@@ -34,7 +34,7 @@ APPLICATION_NAME = "Formific Item Catalog"
 def login_required(func):
     """ Check if user is logged in.
 
-    This decorator verfies whether a user is logged in before
+    This is a decorator that verfies whether a user is logged in before
     allowing access to the requested resource. If they are
     not logged in, they are redirected to the login page.
     """
@@ -49,6 +49,10 @@ def login_required(func):
 
 def item_modification_authentication(func):
     """ Check if user is owner of an item.
+
+    This is a decorator that checks whether a user is the owner 
+    of a specific item before they are allowed to edit or delete it.
+    If they are not the owner, they are flashed a message.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -64,6 +68,10 @@ def item_modification_authentication(func):
 
 def category_exists(func):
     """ Check if a category exists.
+
+    This is a decorator that checks whether a category exists in
+    the database. If the category does not exist, a 404 error
+    is returned.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -77,6 +85,10 @@ def category_exists(func):
 
 def item_exists(func):
     """ Check if a item exists.
+
+    This is a decorator that checks whether an item exists in
+    the database. If the category does not exist, a 404 error
+    is returned.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
