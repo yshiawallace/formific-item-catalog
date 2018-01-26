@@ -92,7 +92,6 @@ def item_exists(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print kwargs
         item = session.query(ArtItem).filter_by(id=kwargs['item_id']).one_or_none()
         if not item:
             return abort(404)
@@ -116,7 +115,6 @@ def fbconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = request.data
-    print "access token received %s " % access_token
 
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
@@ -143,8 +141,6 @@ def fbconnect():
     url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    # print "url sent for API access:%s"% url
-    # print "API JSON result: %s" % result
     data = json.loads(result)
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
@@ -239,7 +235,6 @@ def gconnect():
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
-        print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -271,15 +266,11 @@ def gconnect():
     login_session['email'] = data['email']
     login_session['provider'] = 'google'
 
-    print "Username is:"
-    print login_session['username']
-
     # check if user exists, if not, create a new user in the database
     userId = getUserID(login_session['email'])
     if not userId:
         userId = createUser(login_session)
     login_session['user_id'] = userId
-    print "The User ID is: {}".format(userId)
 
     output = ''
     output += '<h1>Welcome, '
@@ -291,7 +282,6 @@ def gconnect():
         ' " style = "width: 300px; height: 300px;border-radius: 150px; '
         '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
         )
-    print "done!"
     return output
 
 
@@ -300,16 +290,12 @@ def gconnect():
 def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
-        print 'Access Token is None'
         response = (
             make_response(json.dumps(
                 'Current user not connected.'), 401)
         )
         response.headers['Content-Type'] = 'application/json'
         return response
-    print 'In gdisconnect access token is %s' % access_token
-    print 'User name is: '
-    print login_session['username']
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -318,7 +304,6 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        print "result is not 200"
         response = (
             make_response(json.dumps(
                     'Failed to revoke token for given user.', 400)
@@ -406,15 +391,6 @@ def showItems(medium_name):
 def showItem(medium_name, item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
-    # if ('username' not in login_session or
-    #         item.user_id != login_session['user_id']):
-    #     return render_template(
-    #         'public-item.html',
-    #         item=item,
-    #         media=formList,
-    #         userinfo=login_session
-    #     )
-    # else:
     return render_template(
         'item.html',
         item=item,
@@ -456,9 +432,6 @@ def newItem():
 def editItem(item_id):
     formList = session.query(Medium).all()
     editedItem = session.query(ArtItem).filter_by(id=item_id).one()
-    # if editedItem.user_id != login_session['user_id']:
-    #     flash('You are not authorized to edit this item. You must be the creator of an item to edit or delete it.')
-    #     return redirect(url_for('showItem', medium_name=editedItem.medium.name, item_id=editedItem.id))
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -513,7 +486,6 @@ def disconnect():
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
-            print "Disconnecting from google login"
             del login_session['gplus_id']
             del login_session['access_token']
         if login_session['provider'] == 'facebook':
