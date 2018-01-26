@@ -97,7 +97,27 @@ def item_exists(func):
             return abort(404)
         else:
             return func(*args, **kwargs)
-    return wrapper    
+    return wrapper
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Return 404 page when content is not found"""
+    media = session.query(Medium).all()
+    return render_template('404.html', media=media), 404
+
+
+@app.errorhandler(401)
+def unauthorized(e):
+    """Return 401 page user credentials fail"""
+    media = session.query(Medium).all()
+    return render_template('401.html', media=media), 401
+
+
+@app.errorhandler(500)
+def server_error(e):
+    """Return 500 page when server fails"""
+    return render_template('500.html'), 500
 
 
 @app.route('/login')
@@ -365,7 +385,7 @@ def showForms():
         media=formList,
         items=recentItems,
         userinfo=login_session
-    )
+    )   
 
 
 # Show all items in a category
@@ -501,6 +521,7 @@ def disconnect():
     else:
         flash("You were not logged in")
         return redirect(url_for('showForms'))
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
