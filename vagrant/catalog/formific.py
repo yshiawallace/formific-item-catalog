@@ -406,21 +406,21 @@ def showItems(medium_name):
 def showItem(medium_name, item_id):
     formList = session.query(Medium).all()
     item = session.query(ArtItem).filter_by(id=item_id).one()
-    if ('username' not in login_session or
-            item.user_id != login_session['user_id']):
-        return render_template(
-            'public-item.html',
-            item=item,
-            media=formList,
-            userinfo=login_session
-        )
-    else:
-        return render_template(
-            'item.html',
-            item=item,
-            media=formList,
-            userinfo=login_session
-        )
+    # if ('username' not in login_session or
+    #         item.user_id != login_session['user_id']):
+    #     return render_template(
+    #         'public-item.html',
+    #         item=item,
+    #         media=formList,
+    #         userinfo=login_session
+    #     )
+    # else:
+    return render_template(
+        'item.html',
+        item=item,
+        media=formList,
+        userinfo=login_session
+    )
 
 
 @app.route('/formific/item/new', methods=['GET', 'POST'])
