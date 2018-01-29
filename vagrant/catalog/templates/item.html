@@ -28,7 +28,7 @@
 							{% if item.user_id == userinfo['user_id'] %}
 							
 							<a class="btn btn--secondary-reverse" href="{{ url_for('views.editItem', medium_name=item.medium.name, item_id=item.id) }}">Edit</a>
-							<a class="btn btn--secondary-reverse" href="{{ url_for('views.eleteItem', medium_name=item.medium.name, item_id=item.id) }}">Delete</a>
+							<a class="btn btn--secondary-reverse" href="{{ url_for('views.deleteItem', medium_name=item.medium.name, item_id=item.id) }}">Delete</a>
 							
 							{% endif %}
 
