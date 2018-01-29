@@ -19,6 +19,7 @@ import httplib2
 import requests
 from flask import make_response
 from functools import wraps
+import error_handlers
 
 
 init_db()
@@ -29,6 +30,7 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Formific Item Catalog"
 
+app.register_blueprint(error_handlers.blueprint)
 
 def login_required(func):
     """ Check if user is logged in.
@@ -99,24 +101,24 @@ def item_exists(func):
     return wrapper
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    """Returns a 404 page when content is not found"""
-    media = session.query(Medium).all()
-    return render_template('404.html', media=media), 404
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     """Returns a 404 page when content is not found"""
+#     media = session.query(Medium).all()
+#     return render_template('404.html', media=media), 404
 
 
-@app.errorhandler(401)
-def unauthorized(e):
-    """Returns a 401 page if the user credentials fail"""
-    media = session.query(Medium).all()
-    return render_template('401.html', media=media), 401
+# @app.errorhandler(401)
+# def unauthorized(e):
+#     """Returns a 401 page if the user credentials fail"""
+#     media = session.query(Medium).all()
+#     return render_template('401.html', media=media), 401
 
 
-@app.errorhandler(500)
-def server_error(e):
-    """Returns a 500 page when the server fails"""
-    return render_template('500.html'), 500
+# @app.errorhandler(500)
+# def server_error(e):
+#     """Returns a 500 page when the server fails"""
+#     return render_template('500.html'), 500
 
 
 @app.route('/login')
