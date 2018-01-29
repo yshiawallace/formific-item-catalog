@@ -2,9 +2,11 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, jsonify, abort
     )
-from sqlalchemy import create_engine, asc
-from sqlalchemy.orm import sessionmaker
-from models import Base, Medium, ArtItem, User
+from sqlalchemy import asc
+from models import session
+from models.user import User
+from models.medium import Medium
+from models.artitem import ArtItem
 from flask import session as login_session
 import random
 import string
@@ -20,11 +22,6 @@ from functools import wraps
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///formific.db')
-Base.metadata.bind = engine
-
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
