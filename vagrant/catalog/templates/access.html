@@ -2,13 +2,13 @@
 
 	{% if 'username' not in session %}
 	
-		<a class="btn btn--primary" href="{{ url_for('showLogin') }}">Login</a>
+		<a class="btn btn--primary" href="{{ url_for('auth.showLogin') }}">Login</a>
 
 	{% else %}
 
 		<a class="btn btn--primary" href="{{ url_for('newItem') }}">Add New Item</a>
 
-		<a class="btn btn--primary" href="{{ url_for('disconnect') }}">Logout</a>
+		<a class="btn btn--primary" href="{{ url_for('auth.disconnect') }}">Logout</a>
 		
 		<div class="userinfo">
 			<img class="userinfo__img" src="{{userinfo['picture']}}" alt="{{userinfo['username']}}" width="44">
