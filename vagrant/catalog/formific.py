@@ -1,7 +1,7 @@
 from flask import Flask
 from database import init_db
 import error_handlers
-from auth.controllers import auth
+from auth.controller import auth
 from views.controller import views
 
 
