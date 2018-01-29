@@ -12,10 +12,8 @@
 
 				{% for item in items %}
 
-				<!-- <h2><a href="{{ url_for('showItem', medium_name=item.medium.name, item_id=item.id) }}">{{item.name}}</a></h2> -->
-
 				<div class="masonry__brick">
-					<a href="{{ url_for('showItem', medium_name=item.medium.name, item_id=item.id) }}">
+					<a href="{{ url_for('views.showItem', medium_name=item.medium.name, item_id=item.id) }}">
 						<img class="masonry__img" src="{{item.image_url}}" alt="{{item.name}}">
 					</a>
 				</div>

@@ -8,7 +8,7 @@
 
 			</div>
 
-				<form class="form" action="{{ url_for('editItem', item_id=item.id) }}" method="post">
+				<form class="form" action="{{ url_for('views.editItem', item_id=item.id) }}" method="post">
 					<div class="form__row">
 						<label class="label" for="name">Name:</label>
 						<input class="input" type="text" name="name" placeholder="{{item.name}}">
@@ -40,7 +40,7 @@
 					{% endif %}
 
 					<input class="btn btn--secondary-reverse" type="submit" name="submit" value="Update">
-					<a class="btn btn--secondary-reverse" href="{{ url_for('showForms') }}">Cancel</a>
+					<a class="btn btn--secondary-reverse" href="{{ url_for('views.showForms') }}">Cancel</a>
 				</form>
 
 {% endblock %}
