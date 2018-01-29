@@ -3,7 +3,8 @@ from flask import (
     flash, jsonify, abort
     )
 from sqlalchemy import asc
-from models import session
+from database import init_db
+from database import session
 from models.user import User
 from models.medium import Medium
 from models.artitem import ArtItem
@@ -20,8 +21,9 @@ from flask import make_response
 from functools import wraps
 
 
-app = Flask(__name__)
+init_db()
 
+app = Flask(__name__)
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']

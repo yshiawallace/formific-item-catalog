@@ -1,12 +1,16 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Medium, ArtItem
+from models import Base
+from models.user import User
+from models.medium import Medium
+from models.artitem import ArtItem
 
 engine = create_engine('sqlite:///formific.db')
-Base.metadata.bind = engine
+Base.metadata.create_all(engine)
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
 
 # Create media categories
 medium1 = Medium(name='Painting')
